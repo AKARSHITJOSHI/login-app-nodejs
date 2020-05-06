@@ -1,0 +1,74 @@
+var app = require('express')();
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+//creating connection
+const Sequelize = require('sequelize');
+var db = new Sequelize('test', 'root', 'password', {
+    host: 'localhost',
+    dialect: 'mysql'
+});
+//checking if the connection has been made or not
+
+db
+    .authenticate()
+    .then(() => {
+        console.log('Connection has been established successfully.');
+    })
+    .catch(err => {
+        console.error('Unable to connect to the database:', err);
+    });
+
+//creating the model for our table user
+const User = db.define('user', {
+    // attributes
+    /*id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },*/
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    password: {
+        type: Sequelize.STRING,
+        allowNull: false
+    }
+
+}, {
+    // options
+    tableName: 'user',
+    timestamps: false
+});
+
+User.findAll()
+    .then((obj) => { console.log("Fetching:" + obj); })
+    .catch(err => { console.log(err); });
+
+app.get('/', (req, res) => {
+    res.sendfile('login.html');
+});
+
+app.get('/signup', (req, res) => {
+    res.sendfile('signup.html');
+});
+
+app.post('/adduser', (req, res) => {
+    let username = req.body.nm;
+    let pass = req.body.pss;
+    User.create({ iduser: Sequelize.iduser, name: username, password: pass }).then(obj => {
+            console.log("User created successfully \n OBject's auto-generated ID:", obj.iduser);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send(err);
+        });
+});
+
+app.post('/login', (req, res) => {
+    res.send(200);
+});
+
+app.listen(3000, () => {
+    console.log("Server running on 3000");
+});
